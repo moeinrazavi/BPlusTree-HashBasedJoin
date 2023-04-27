@@ -15,13 +15,13 @@ This project explores the performance of B+ trees with different orders and dens
 Compile the project using a C++ compiler that supports C++11 or later, such as GCC or Clang:
 
 ```bash
-g++ -std=c++11 main.cpp -o bplus_tree_performance
+g++ -std=c++11 -o main main.cpp b_plus_tree.cpp
 ```
 
 Run the compiled binary:
 
 ```bash
-./bplus_tree_performance
+./main
 ```
 
 ## Project Structure
@@ -52,6 +52,17 @@ This C++ project implements a two-pass join algorithm based on hashing. It simul
 
 ## Usage
 
+Compile the project using a C++ compiler that supports C++11 or later, such as GCC or Clang:
+
+```bash
+g++ -std=c++17 hashing_based_join.cpp -o hashing_based_join
+```
+
+Run the compiled binary:
+
+```bash
+./hashing_based_join
+```
 1. Clone the repository to your local machine.
 2. Compile the C++ code using a C++ compiler.
 3. Run the compiled code.
