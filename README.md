@@ -1,4 +1,4 @@
-# B+ Tree Performance Analysis
+# PART1: B+ Trees
 
 This project explores the performance of B+ trees with different orders and densities under various operations. B+ trees are balanced tree data structures commonly used in databases and file systems for efficient search, insertion, and deletion operations.
 
@@ -38,7 +38,7 @@ Run the compiled binary:
 
 
 
-# Two-Pass Join Algorithm Based on Hashing
+# PART2: Join Algorithm Based on Hashing
 
 This C++ project implements a two-pass join algorithm based on hashing. It simulates the join of two relations R(A, B) and S(B, C) using a virtual main memory and a virtual disk. The project is divided into five parts: Data Generation, Virtual Disk I/O, Hash Function, Join Algorithm, and Experiment.
 
