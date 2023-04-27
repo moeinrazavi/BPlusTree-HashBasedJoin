@@ -37,14 +37,13 @@ Run the compiled binary:
 5. `main()`: The main function initializes the parameters for the experiment and calls `perform_experiments()` to execute the experiment. It also demonstrates a simple example of a B+ tree with order 3 and a predefined set of records, printing the tree structure after inserting the records.
 
 
-
 # PART2: Join Algorithm Based on Hashing
 
-This C++ project implements a two-pass join algorithm based on hashing. It simulates the join of two relations R(A, B) and S(B, C) using a virtual main memory and a virtual disk. The project is divided into five parts: Data Generation, Virtual Disk I/O, Hash Function, Join Algorithm, and Experiment.
+This C++ project implements a two-pass join algorithm based on hashing. It simulates the join of two relations R(A, B) and S(B, C) using a virtual main memory and a virtual disk. The project is divided into five parts: Data Generation, Virtual Disk I/O, Hash Function, Join Algorithm, and Experiment. The code is designed to handle different data types for the C value in the tuples using C++ templates.
 
 ## Features
 
-- Data Generation for relations R and S
+- Data Generation for relations R and S with customizable data type for the C value using C++ templates
 - Virtual Disk I/O simulation for read and write operations
 - Custom hash function for partitioning the relations
 - Two-pass join algorithm that incorporates one-pass join when possible
@@ -66,15 +65,18 @@ Run the compiled binary:
 1. Clone the repository to your local machine.
 2. Compile the C++ code using a C++ compiler.
 3. Run the compiled code.
-4. Observe the output for the experiments, including disk I/O counts and resulting tuples from the join operations.
+4. Observe the output for the experiments, including disk I/O counts and resulting tuples from the join operations. Customize the data type of the C value in the tuples by modifying the code to use a different template parameter.
 
 ## Experiments
 
-Three experiments are included in the main function of the project:
+Four experiments are included in the main function of the project:
 
 1. One-pass join example: This experiment demonstrates the one-pass join when the total number of tuples in R and S can fit within the virtual main memory.
-2. Experiment 5.1: Generates a relation R and calculates its natural join with the relation S. The output includes disk I/Os used and tuples in the join with random B-values.
-3. Experiment 5.2: Generates a different relation R with 1,200 tuples and calculates its natural join with the relation S. The output includes disk I/Os used and all the tuples in the join R(A, B) ⋈ S(B, C).
+2. Example with string C: This experiment generates relations R and S with string type C values and calculates their natural join using the two-pass join algorithm.
+3. Experiment 5.1: Generates a relation R and calculates its natural join with the relation S. The output includes disk I/Os used and tuples in the join with random B-values.
+4. Experiment 5.2: Generates a different relation R with 1,200 tuples and calculates its natural join with the relation S. The output includes disk I/Os used and all the tuples in the join R(A, B) ⋈ S(B, C).
+
+In the code, you can change the type of the C value in the tuples by modifying the template parameter for the `Tuple`, `generateRelationS`, `generateRelationR`, and `twoPassJoin` functions.
 
 ## License
 
