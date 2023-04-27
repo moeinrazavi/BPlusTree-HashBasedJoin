@@ -60,7 +60,7 @@ std::vector<Tuple<T>> generateRelationS(int size) {
         int B = rand() % 40001 + 10000;
         T C;
         if constexpr (std::is_same_v<T, std::string>) {
-            C = "STR_" + std::to_string(rand() % 100000);
+            C = "_STR_" + std::to_string(rand() % 100000);
         } else {
             C = static_cast<T>(rand() % 100000);
         }
@@ -230,6 +230,13 @@ int main() {
     std::vector<Tuple<int>> joinResult_small = twoPassJoin<int>(R_small, S_small, diskIOs);
     std::cout << "One-pass join example\n";
     std::cout << "Disk I/Os for join: " << diskIOs << std::endl;
+    if (diskIOs == 0) {
+        std::cout << "One-pass join succeeded! --> diskIOs = 0" << std::endl;
+    } else {
+        
+        std::cout << "One-pass join failed because totalTuples > MEMORY_BLOCKS * BLOCK_SIZE" << std::endl;
+        std::cout << "Applying Two-pass join" << std::endl;
+    }
     std::cout << "All tuples in the join R(A, B) ⋈ S(B, C):\n";
     for (const auto& tuple : joinResult_small) {
         std::cout << "(" << tuple.A << ", " << tuple.B << ", " << tuple.C << ")\n";
@@ -255,6 +262,8 @@ int main() {
     }
 
     // 5.2
+    
+    std::cout << "Two-pass join example\n";
     std::vector<Tuple<int>> R2(TUPLE_R + 200);
     for (int i = 0; i < TUPLE_R + 200; ++i) {
         int A = rand() % 100000;
@@ -265,18 +274,34 @@ int main() {
     diskIOs = 0;
     joinResult = twoPassJoin<int>(R2, S, diskIOs);
     std::cout << "Disk I/Os for join: " << diskIOs << std::endl;
+    if (diskIOs == 0) {
+        std::cout << "One-pass join succeeded! --> diskIOs = 0" << std::endl;
+    } else {
+        
+        std::cout << "One-pass join failed because totalTuples > MEMORY_BLOCKS * BLOCK_SIZE" << std::endl;
+        std::cout << "Applying Two-pass join" << std::endl;
+    }
 
     std::cout << "All tuples in the join R(A, B) ⋈ S(B, C):\n";
     for (const auto& tuple : joinResult) {
         std::cout << "(" << tuple.A << ", " << tuple.B << ", " << tuple.C << ")\n";
     }
     // Example with string C
-    std::vector<Tuple<std::string>> S_string = generateRelationS<std::string>(100);
+    std::vector<Tuple<std::string>> S_string = generateRelationS<std::string>(10000);
     std::vector<Tuple<std::string>> R_string = generateRelationR<std::string>(20, S_string);
     int stringDiskIOs = 0;
     std::vector<Tuple<std::string>> joinResult_string = twoPassJoin<std::string>(R_string, S_string, stringDiskIOs);
+    std::cout << std::endl;
+    std::cout << std::endl;
     std::cout << "Join example with string C\n";
     std::cout << "Disk I/Os for join: " << stringDiskIOs << std::endl;
+    if (stringDiskIOs == 0) {
+        std::cout << "One-pass join succeeded! --> diskIOs = 0" << std::endl;
+    } else {
+        
+        std::cout << "One-pass join failed because totalTuples > MEMORY_BLOCKS * BLOCK_SIZE" << std::endl;
+        std::cout << "Applying Two-pass join" << std::endl;
+    }
     std::cout << "All tuples in the join R(A, B) ⋈ S(B, C):\n";
     for (const auto& tuple : joinResult_string) {
         std::cout << "(" << tuple.A << ", " << tuple.B << ", " << tuple.C << ")\n";
