@@ -45,30 +45,42 @@ const int MEMORY_BLOCKS = 15;
 const int TUPLE_R = 1000;
 const int TUPLE_S = 5000;
 
+template<typename T>
 struct Tuple {
-    int A, B, C;
+    int A, B;
+    T C;
 };
 
 // Part 1: Data Generation
-std::vector<Tuple> generateRelationS(int size) {
-    std::vector<Tuple> relation;
+
+template<typename T>
+std::vector<Tuple<T>> generateRelationS(int size) {
+    std::vector<Tuple<T>> relation;
     for (int i = 0; i < size; ++i) {
         int B = rand() % 40001 + 10000;
-        int C = rand() % 100000;
+        T C;
+        if constexpr (std::is_same_v<T, std::string>) {
+            C = "STR_" + std::to_string(rand() % 100000);
+        } else {
+            C = static_cast<T>(rand() % 100000);
+        }
         relation.push_back({0, B, C});
     }
     return relation;
 }
 
+
 // Part 2: Virtual Disk I/O
-void readBlock(std::vector<Tuple>& memory, std::vector<Tuple>& disk, int blockNum) {
+template<typename T>
+void readBlock(std::vector<Tuple<T>>& memory, std::vector<Tuple<T>>& disk, int blockNum) {
     int startIndex = blockNum * BLOCK_SIZE;
     for (int i = startIndex; i < startIndex + BLOCK_SIZE && i < disk.size(); ++i) {
         memory.push_back(disk[i]);
     }
 }
 
-void writeBlock(std::vector<Tuple>& memory, std::vector<Tuple>& disk) {
+template<typename T>
+void writeBlock(std::vector<Tuple<T>>& memory, std::vector<Tuple<T>>& disk) {
     for (const auto& tuple : memory) {
         disk.push_back(tuple);
     }
@@ -81,14 +93,14 @@ int hashFunction(int value) {
 }
 
 // Part 4: Join Algorithm
-std::vector<Tuple> twoPassJoin(std::vector<Tuple>& R, std::vector<Tuple>& S, int& diskIOs) {
-//    std::vector<Tuple> output;
-    std::vector<Tuple> output;
+template<typename T>
+std::vector<Tuple<T>> twoPassJoin(std::vector<Tuple<T>>& R, std::vector<Tuple<T>>& S, int& diskIOs) {
+    std::vector<Tuple<T>> output;
     int totalTuples = static_cast<int>(R.size() + S.size());
 
     // One-pass join, if possible
     if (totalTuples <= MEMORY_BLOCKS * BLOCK_SIZE) {
-        std::unordered_map<int, std::vector<Tuple>> R_map, S_map;
+        std::unordered_map<int, std::vector<Tuple<T>>> R_map, S_map;
 
         for (const auto& tuple : R) {
             R_map[tuple.B].push_back(tuple);
@@ -109,8 +121,8 @@ std::vector<Tuple> twoPassJoin(std::vector<Tuple>& R, std::vector<Tuple>& S, int
 
         return output;
     }
-    std::vector<std::vector<Tuple>> memoryHashTable(MEMORY_BLOCKS);
-    std::vector<std::vector<Tuple>> diskHashTable(MEMORY_BLOCKS);
+    std::vector<std::vector<Tuple<T>>> memoryHashTable(MEMORY_BLOCKS);
+    std::vector<std::vector<Tuple<T>>> diskHashTable(MEMORY_BLOCKS);
 
     // Phase 1: Partitioning
     for (const auto& tuple : R) {
@@ -137,57 +149,85 @@ std::vector<Tuple> twoPassJoin(std::vector<Tuple>& R, std::vector<Tuple>& S, int
 
     // Phase 2: Join
     for (int i = 0; i < MEMORY_BLOCKS; ++i) {
-        std::unordered_map<int, std::vector<Tuple>> R_map, S_map;
-        
-        for (const auto& tuple : memoryHashTable[i]) {
-            if (tuple.C == 0) {
-                R_map[tuple.B].push_back(tuple);
-            } else {
-                S_map[tuple.B].push_back(tuple);
-            }
-        }
+            std::unordered_map<int, std::vector<Tuple<T>>> R_map, S_map;
 
-        for (const auto& tuple : diskHashTable[i]) {
-            if (tuple.C == 0) {
-                R_map[tuple.B].push_back(tuple);
-            } else {
-                S_map[tuple.B].push_back(tuple);
+            for (const auto& tuple : memoryHashTable[i]) {
+                if constexpr (std::is_same_v<T, std::string>) {
+                    if (tuple.C == "0") {
+                        R_map[tuple.B].push_back(tuple);
+                    } else {
+                        S_map[tuple.B].push_back(tuple);
+                    }
+                } else {
+                    if (tuple.C == 0) {
+                        R_map[tuple.B].push_back(tuple);
+                    } else {
+                        S_map[tuple.B].push_back(tuple);
+                    }
+                }
             }
-        }
 
-        for (const auto& pair : R_map) {
-            if (S_map.find(pair.first) != S_map.end()) {
-                for (const auto& r_tuple : pair.second) {
-                    for (const auto& s_tuple : S_map[pair.first]) {
-                        output.push_back({r_tuple.A, r_tuple.B, s_tuple.C});
+            for (const auto& tuple : diskHashTable[i]) {
+                if constexpr (std::is_same_v<T, std::string>) {
+                    if (tuple.C == "0") {
+                        R_map[tuple.B].push_back(tuple);
+                    } else {
+                        S_map[tuple.B].push_back(tuple);
+                    }
+                } else {
+                    if (tuple.C == 0) {
+                        R_map[tuple.B].push_back(tuple);
+                    } else {
+                        S_map[tuple.B].push_back(tuple);
+                    }
+                }
+            }
+
+            for (const auto& pair : R_map) {
+                if (S_map.find(pair.first) != S_map.end()) {
+                    for (const auto& r_tuple : pair.second) {
+                        for (const auto& s_tuple : S_map[pair.first]) {
+                            if constexpr (std::is_same_v<T, std::string>) {
+                                output.push_back({r_tuple.A, r_tuple.B, s_tuple.C.substr(1)}); // Remove the "C" prefix
+                            } else {
+                                output.push_back({r_tuple.A, r_tuple.B, s_tuple.C});
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-
+    
     return output;
 }
 
 // Part 5: Experiment
-std::vector<Tuple> generateRelationR(int size, const std::vector<Tuple>& S) {
-    std::vector<Tuple> relation;
+template<typename T>
+std::vector<Tuple<T>> generateRelationR(int size, const std::vector<Tuple<T>>& S) {
+    std::vector<Tuple<T>> relation;
     for (int i = 0; i < size; ++i) {
         int A = rand() % 100000;
         int B = S[rand() % S.size()].B;
-        relation.push_back({A, B, 0});
+        T C;
+        if constexpr (std::is_same_v<T, std::string>) {
+            C = "0";
+        } else {
+            C = static_cast<T>(0);
+        }
+        relation.push_back({A, B, C});
     }
     return relation;
 }
+
 
 int main() {
     srand(time(0));
     int diskIOs = 0;
 
     // One-pass join example
-    std::vector<Tuple> S_small = generateRelationS(100);
-    std::vector<Tuple> R_small = generateRelationR(20, S_small);
-    std::vector<Tuple> joinResult_small = twoPassJoin(R_small, S_small, diskIOs);
+    std::vector<Tuple<int>> S_small = generateRelationS<int>(100);
+    std::vector<Tuple<int>> R_small = generateRelationR<int>(20, S_small);
+    std::vector<Tuple<int>> joinResult_small = twoPassJoin<int>(R_small, S_small, diskIOs);
     std::cout << "One-pass join example\n";
     std::cout << "Disk I/Os for join: " << diskIOs << std::endl;
     std::cout << "All tuples in the join R(A, B) ⋈ S(B, C):\n";
@@ -197,9 +237,9 @@ int main() {
     std::cout << "\n";
 
     // 5.1
-    std::vector<Tuple> S = generateRelationS(TUPLE_S);
-    std::vector<Tuple> R = generateRelationR(TUPLE_R, S);
-    std::vector<Tuple> joinResult = twoPassJoin(R, S, diskIOs);
+    std::vector<Tuple<int>> S = generateRelationS<int>(TUPLE_S);
+    std::vector<Tuple<int>> R = generateRelationR<int>(TUPLE_R, S);
+    std::vector<Tuple<int>> joinResult = twoPassJoin<int>(R, S, diskIOs);
     std::cout << "Disk I/Os for join: " << diskIOs << std::endl;
 
     std::vector<int> randomBvalues;
@@ -209,13 +249,13 @@ int main() {
 
     std::cout << "Tuples with random B-values:\n";
     for (const auto& tuple : joinResult) {
-        if (std::find(randomBvalues.begin(), randomBvalues.end(), tuple.B) != randomBvalues.end()) {
+        if (std::find(randomBvalues.begin(),randomBvalues.end(), tuple.B) != randomBvalues.end()) {
             std::cout << "(" << tuple.A << ", " << tuple.B << ", " << tuple.C << ")\n";
         }
     }
 
     // 5.2
-    std::vector<Tuple> R2(TUPLE_R + 200);
+    std::vector<Tuple<int>> R2(TUPLE_R + 200);
     for (int i = 0; i < TUPLE_R + 200; ++i) {
         int A = rand() % 100000;
         int B = rand() % 10001 + 20000;
@@ -223,15 +263,27 @@ int main() {
     }
 
     diskIOs = 0;
-    joinResult = twoPassJoin(R2, S, diskIOs);
+    joinResult = twoPassJoin<int>(R2, S, diskIOs);
     std::cout << "Disk I/Os for join: " << diskIOs << std::endl;
 
     std::cout << "All tuples in the join R(A, B) ⋈ S(B, C):\n";
     for (const auto& tuple : joinResult) {
         std::cout << "(" << tuple.A << ", " << tuple.B << ", " << tuple.C << ")\n";
     }
+    // Example with string C
+    std::vector<Tuple<std::string>> S_string = generateRelationS<std::string>(100);
+    std::vector<Tuple<std::string>> R_string = generateRelationR<std::string>(20, S_string);
+    int stringDiskIOs = 0;
+    std::vector<Tuple<std::string>> joinResult_string = twoPassJoin<std::string>(R_string, S_string, stringDiskIOs);
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << "Join example with string C\n";
+    std::cout << "Disk I/Os for join: " << stringDiskIOs << std::endl;
+    std::cout << "All tuples in the join R(A, B) ⋈ S(B, C):\n";
+    for (const auto& tuple : joinResult_string) {
+        std::cout << "(" << tuple.A << ", " << tuple.B << ", " << tuple.C << ")\n";
+    }
+    std::cout << "\n";
 
     return 0;
 }
-
-                       
