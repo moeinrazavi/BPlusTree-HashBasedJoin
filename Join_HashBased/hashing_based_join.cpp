@@ -275,8 +275,6 @@ int main() {
     std::vector<Tuple<std::string>> R_string = generateRelationR<std::string>(20, S_string);
     int stringDiskIOs = 0;
     std::vector<Tuple<std::string>> joinResult_string = twoPassJoin<std::string>(R_string, S_string, stringDiskIOs);
-    std::cout << std::endl;
-    std::cout << std::endl;
     std::cout << "Join example with string C\n";
     std::cout << "Disk I/Os for join: " << stringDiskIOs << std::endl;
     std::cout << "All tuples in the join R(A, B) ⋈ S(B, C):\n";
