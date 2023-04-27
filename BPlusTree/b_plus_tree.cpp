@@ -278,51 +278,83 @@ std::vector<int> BPlusTree::range_search(int start, int end) {
 }
 
 void BPlusTree::print_tree() const {
-    std::vector<std::string> tree_lines;
-    print_tree_recursively(root, 0, tree_lines);
-    for (const auto& line : tree_lines) {
-        std::cout << line << std::endl;
+    if (root == nullptr) {
+        std::cout << "The tree is empty." << std::endl;
+        return;
+    }
+
+    std::queue<Node*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        int sz = q.size();
+        for (int i = 0; i < sz; i++) {
+            Node* node = q.front();
+            q.pop();
+
+            // Print keys in the node
+            for (int key : node->keys) {
+                std::cout << key << " ";
+            }
+
+            std::cout << "|| ";  // Separator for adjacent nodes
+
+            if (!node->is_leaf) {
+                for (Node* child : static_cast<InternalNode*>(node)->pointers) {
+                    q.push(child);
+                }
+            }
+        }
+        std::cout << std::endl;
     }
 }
 
-void BPlusTree::print_tree_recursively(Node* node, int level, std::vector<std::string>& tree_lines) const {
-    if (node == nullptr) return;
-
-    if (level >= static_cast<int>(tree_lines.size())) {
-        tree_lines.push_back("");
-    }
-
-    std::stringstream node_repr;
-    if (node->is_leaf) {
-        LeafNode* leaf = static_cast<LeafNode*>(node);
-        node_repr << "[";
-        for (size_t i = 0; i < leaf->keys.size(); i++) {
-            node_repr << "(" << leaf->keys[i] << ", " << leaf->values[i] << ")";
-            if (i < leaf->keys.size() - 1) {
-                node_repr << ", ";
-            }
-        }
-        node_repr << "]";
-    } else {
-        InternalNode* internal = static_cast<InternalNode*>(node);
-        node_repr << "<";
-        for (size_t i = 0; i < internal->keys.size(); i++) {
-            node_repr << internal->keys[i];
-            if (i < internal->keys.size() - 1) {
-                node_repr << ", ";
-            }
-        }
-        node_repr << ">";
-    }
-
-    tree_lines[level] += node_repr.str() + "  ";
-
-    if (!node->is_leaf) {
-        InternalNode* internal = static_cast<InternalNode*>(node);
-        for (Node* child : internal->pointers) {
-            print_tree_recursively(child, level + 1, tree_lines);
-        }
-    }
-}
+//void BPlusTree::print_tree() const {
+//    std::vector<std::string> tree_lines;
+//    print_tree_recursively(root, 0, tree_lines);
+//    for (const auto& line : tree_lines) {
+//        std::cout << line << std::endl;
+//    }
+//}
+//
+//void BPlusTree::print_tree_recursively(Node* node, int level, std::vector<std::string>& tree_lines) const {
+//    if (node == nullptr) return;
+//
+//    if (level >= static_cast<int>(tree_lines.size())) {
+//        tree_lines.push_back("");
+//    }
+//
+//    std::stringstream node_repr;
+//    if (node->is_leaf) {
+//        LeafNode* leaf = static_cast<LeafNode*>(node);
+//        node_repr << "[";
+//        for (size_t i = 0; i < leaf->keys.size(); i++) {
+//            node_repr << "(" << leaf->keys[i] << ", " << leaf->values[i] << ")";
+//            if (i < leaf->keys.size() - 1) {
+//                node_repr << ", ";
+//            }
+//        }
+//        node_repr << "]";
+//    } else {
+//        InternalNode* internal = static_cast<InternalNode*>(node);
+//        node_repr << "<";
+//        for (size_t i = 0; i < internal->keys.size(); i++) {
+//            node_repr << internal->keys[i];
+//            if (i < internal->keys.size() - 1) {
+//                node_repr << ", ";
+//            }
+//        }
+//        node_repr << ">";
+//    }
+//
+//    tree_lines[level] += node_repr.str() + "  ";
+//
+//    if (!node->is_leaf) {
+//        InternalNode* internal = static_cast<InternalNode*>(node);
+//        for (Node* child : internal->pointers) {
+//            print_tree_recursively(child, level + 1, tree_lines);
+//        }
+//    }
+//}
 
 
