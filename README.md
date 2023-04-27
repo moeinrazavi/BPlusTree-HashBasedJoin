@@ -72,9 +72,9 @@ Run the compiled binary:
 Four experiments are included in the main function of the project:
 
 1. One-pass join example: This experiment demonstrates the one-pass join when the total number of tuples in R and S can fit within the virtual main memory.
-2. Example with string C: This experiment generates relations R and S with string type C values and calculates their natural join using the two-pass join algorithm.
-3. Experiment 5.1: Generates a relation R and calculates its natural join with the relation S. The output includes disk I/Os used and tuples in the join with random B-values.
-4. Experiment 5.2: Generates a different relation R with 1,200 tuples and calculates its natural join with the relation S. The output includes disk I/Os used and all the tuples in the join R(A, B) ⋈ S(B, C).
+2. Experiment 5.1: Generates a relation R and calculates its natural join with the relation S. The output includes disk I/Os used and tuples in the join with random B-values.
+3. Experiment 5.2: Generates a different relation R with 1,200 tuples and calculates its natural join with the relation S. The output includes disk I/Os used and all the tuples in the join R(A, B) ⋈ S(B, C).
+4. Example with string C: This experiment generates relations R and S with string type C values and calculates their natural join using the two-pass join algorithm.
 
 In the code, you can change the type of the C value in the tuples by modifying the template parameter for the `Tuple`, `generateRelationS`, `generateRelationR`, and `twoPassJoin` functions.
 
